@@ -39,6 +39,7 @@ const Cookies = () => {
     returningToSingleTab,
     selectedFrame,
     tabCookies,
+    isTableLoading,
     tabFrames,
     changeListeningToThisTab,
   } = useCookieStore(({ state, actions }) => ({
@@ -50,6 +51,7 @@ const Cookies = () => {
     selectedFrame: state.selectedFrame,
     tabCookies: state.tabCookies,
     tabFrames: state.tabFrames,
+    isTableLoading: state.isTableLoading,
     changeListeningToThisTab: actions.changeListeningToThisTab,
   }));
 
@@ -78,7 +80,13 @@ const Cookies = () => {
         data-testid="cookies-content"
       >
         {selectedFrame ? (
-          <CookiesListing />
+          isTableLoading ? (
+            <div className="w-full h-full flex items-center justify-center">
+              <ProgressBar additionalStyles="w-1/3 mx-auto h-full" />
+            </div>
+          ) : (
+            <CookiesListing />
+          )
         ) : (
           <CookiesLanding tabCookies={tabCookies} tabFrames={tabFrames} />
         )}
