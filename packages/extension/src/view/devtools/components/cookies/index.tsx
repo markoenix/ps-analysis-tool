@@ -22,7 +22,6 @@ import {
   CookiesLanding,
   ProgressBar,
 } from '@ps-analysis-tool/design-system';
-import { LibraryDetection } from '@ps-analysis-tool/library-detection';
 import { type CookieTableData } from '@ps-analysis-tool/common';
 
 /**
@@ -117,7 +116,6 @@ const Cookies = ({ setFilteredCookies }: CookiesProps) => {
             tabFrames={tabFrames}
             showBlockedCookiesSection
             description={description}
-            additionalComponents={{ libraryDetection: LibraryDetection }}
           />
         )}
       </div>
