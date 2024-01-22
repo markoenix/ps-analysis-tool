@@ -26,7 +26,8 @@ import { getCookieKey, type TabCookies } from '@ps-analysis-tool/common';
 
 const useHighlighting = (
   cookies: TabCookies,
-  setTableData: React.Dispatch<React.SetStateAction<TabCookies>>
+  setTableData: React.Dispatch<React.SetStateAction<TabCookies>>,
+  domainsInAllowList: Set<string>
 ) => {
   const handleHighlighting = useCallback(
     (cookiesToProcess: TabCookies, cookiesToReference?: TabCookies) =>
@@ -42,9 +43,45 @@ const useHighlighting = (
     []
   );
 
+  const handleDomainAdditionToAllowedList = useCallback(() => {
+    setTableData((prevData) =>
+      Object.fromEntries(
+        Object.entries(cookies || {}).map(([key, cookie]) => {
+          const domain = cookie.parsedCookie?.domain || '';
+          let isDomainInAllowList = domainsInAllowList.has(domain);
+
+          if (!isDomainInAllowList) {
+            isDomainInAllowList = [...domainsInAllowList].some(
+              (storedDomain) => {
+                // For example xyz.bbc.com and .bbc.com
+                if (
+                  (domain.endsWith(storedDomain) && domain !== storedDomain) ||
+                  `.${domain}` === storedDomain
+                ) {
+                  return true;
+                }
+
+                return false;
+              }
+            );
+          }
+
+          cookie.highlighted = prevData?.[key]?.highlighted;
+          cookie.isDomainInAllowList = isDomainInAllowList;
+
+          return [key, cookie];
+        })
+      )
+    );
+  }, [cookies, domainsInAllowList, setTableData]);
+
   useEffect(() => {
     setTableData((prevData) => handleHighlighting(cookies, prevData));
   }, [cookies, handleHighlighting, setTableData]);
+
+  useEffect(() => {
+    handleDomainAdditionToAllowedList();
+  }, [handleDomainAdditionToAllowedList]);
 
   const removeHighlights = useCallback(() => {
     setTableData((prev) => handleHighlighting(prev));
