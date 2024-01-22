@@ -43,19 +43,19 @@ import { createCookieObject } from './createCookieObject';
  * @param {string} tabUrl top url of the tab from which the request originated.
  * @param {number} frameId Id of a frame in which this cookie is used.
  * @param {Protocol.Network.Cookie[]} cookiesList List cookies from the request.
- * @returns {Promise<CookieData>} Parsed cookie object.
+ * @returns {CookieData} Parsed cookie object.
  */
-const parseResponseCookieHeader = async (
+const parseResponseCookieHeader = (
   url: string,
   value: string,
   dictionary: CookieDatabase,
   tabUrl: string,
   frameId: number,
   cookiesList: Protocol.Network.Cookie[]
-): Promise<CookieData> => {
+): CookieData => {
   let parsedCookie: CookieData['parsedCookie'] = cookie.parse(value);
 
-  parsedCookie = await createCookieObject(parsedCookie, url, cookiesList);
+  parsedCookie = createCookieObject(parsedCookie, url, cookiesList);
 
   let analytics: CookieAnalytics | null = null;
   if (dictionary) {
@@ -64,7 +64,6 @@ const parseResponseCookieHeader = async (
 
   const _isFirstParty = isFirstParty(parsedCookie.domain || '', tabUrl);
   const partitionKey = new URL(tabUrl).protocol + '//' + getDomain(tabUrl);
-
   if (value.toLowerCase().includes('partitioned')) {
     parsedCookie = {
       ...parsedCookie,
