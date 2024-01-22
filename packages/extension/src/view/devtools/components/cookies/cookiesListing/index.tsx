@@ -42,7 +42,6 @@ import {
  * Internal dependencies.
  */
 import { useCookieStore } from '../../../stateProviders/syncCookieStore';
-import { BLOCKED_REASON_LIST } from '../../../../../constants';
 import RowContextMenu from './rowContextMenu';
 import useAllowedList from './useAllowedList';
 
@@ -232,17 +231,6 @@ const CookiesListing = ({ setFilteredCookies }: CookiesListingProps) => {
     []
   );
 
-  const blockedReasonFilterValues = useMemo<{
-    [key: string]: { selected: boolean };
-  }>(() => {
-    const filterValues: { [key: string]: { selected: boolean } } = {};
-
-    BLOCKED_REASON_LIST.forEach((reason) => {
-      filterValues[reason] = { selected: false };
-    });
-    return filterValues;
-  }, []);
-
   const filters = useMemo<TableFilter>(
     () => ({
       'analytics.category': {
@@ -374,11 +362,6 @@ const CookiesListing = ({ setFilteredCookies }: CookiesListingProps) => {
       },
       blockedReasons: {
         title: 'Blocked Reasons',
-        hasStaticFilterValues: true,
-        filterValues: blockedReasonFilterValues,
-        comparator: (value: InfoType, filterValue: string) => {
-          return (value as string[])?.includes(filterValue);
-        },
       },
       'parsedCookie.partitionKey': {
         title: 'Partition Key',
@@ -434,7 +417,7 @@ const CookiesListing = ({ setFilteredCookies }: CookiesListingProps) => {
         },
       },
     }),
-    [blockedReasonFilterValues]
+    []
   );
 
   const searchKeys = useMemo<string[]>(

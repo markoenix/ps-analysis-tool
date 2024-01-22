@@ -29,6 +29,7 @@ import {
   type TabCookies,
   type TabFrames,
   UNKNOWN_FRAME_KEY,
+  type CookieData,
 } from '@ps-analysis-tool/common';
 
 /**
@@ -251,7 +252,22 @@ export const Provider = ({ children }: PropsWithChildren) => {
           tabId?.toString() === message?.payload?.tabId.toString()
         ) {
           await getAllFramesForCurrentTab(tabId);
-          setTabCookies(JSON.parse(message?.payload?.cookieData ?? '{}'));
+          const cookies = JSON.parse(message?.payload?.cookieData ?? '{}');
+          const _cookies: { [key: string]: CookieData } = {};
+          Object.entries(cookies as { [key: string]: CookieData }).map(
+            ([key, value]: [string, CookieData]) => {
+              const isCookieBlocked =
+                value?.isBlocked ||
+                (value?.blockedReasons && value?.blockedReasons?.length > 0) ||
+                false;
+              _cookies[key] = {
+                ...value,
+                isBlocked: isCookieBlocked,
+              };
+              return [key, value];
+            }
+          );
+          setTabCookies(_cookies);
         }
       }
 
